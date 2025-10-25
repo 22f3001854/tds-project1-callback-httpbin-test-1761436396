@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Callback HTTPBin Test</title>
+  <!-- Bootstrap 5 CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      padding-top: 2rem;
+    }
+    #responseArea {
+      white-space: pre-wrap;
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 0.25rem;
+      min-height: 200px;
+      border: 1px solid #dee2e6;
+    }
+    #loadingSpinner {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="mb-4 text-center">Callback HTTPBin Test</h1>
+    <p class="text-center mb-4">A simple test page to demonstrate callback functionality with HTTPBin.</p>
+    <div class="row mb-3">
+      <div class="col-md-8">
+        <input type="text" class="form-control" id="urlInput" placeholder="Enter URL (default: https://httpbin.org/get)" />
+      </div>
+      <div class="col-md-4">
+        <button class="btn btn-primary w-100" id="sendBtn">Send Request</button>
+      </div>
+    </div>
+    <div class="d-flex align-items-center mb-3">
+      <div class="spinner-border text-primary me-2" role="status" id="loadingSpinner" aria-hidden="true"></div>
+      <span id="statusMessage" class="text-muted"></span>
+    </div>
+    <h5>Response:</h5>
+    <div id="responseArea" class="mb-4">Waiting for request...</div>
+    <div class="text-center">
+      <a href="https://github.com/yourusername/callback-httpbin-test-1761436396" target="_blank" class="btn btn-outline-secondary">View Repository</a>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 JS Bundle CDN (includes Popper) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlInput = document.getElementById('urlInput');
+      const sendBtn = document.getElementById('sendBtn');
+      const responseArea = document.getElementById('responseArea');
+      const loadingSpinner = document.getElementById('loadingSpinner');
+      const statusMessage = document.getElementById('statusMessage');
+
+      // Set default URL or parse from URL parameters
+      const params = new URLSearchParams(window.location.search);
+      const defaultUrl = 'https://httpbin.org/get';
+      if (params.has('url')) {
+        urlInput.value = params.get('url');
+      } else {
+        urlInput.value = defaultUrl;
+      }
+
+      function showLoading(show) {
+        loadingSpinner.style.display = show ? 'inline-block' : 'none';
+        statusMessage.textContent = show ? 'Loading...' : '';
+        sendBtn.disabled = show;
+      }
+
+      async function sendRequest() {
+        const url = urlInput.value.trim();
+        if (!url) {
+          alert('Please enter a valid URL.');
+          return;
+        }
+        showLoading(true);
+        responseArea.textContent = '';
+        try {
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          const data = await response.json();
+          responseArea.textContent = JSON.stringify(data, null, 2);
+        } catch (error) {
+          responseArea.textContent = `Error: ${error.message}`;
+        } finally {
+          showLoading(false);
+        }
+      }
+
+      sendBtn.addEventListener('click', sendRequest);
+
+      // Optional: allow pressing Enter to send request
+      urlInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          sendRequest();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
